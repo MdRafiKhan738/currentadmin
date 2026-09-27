@@ -40,6 +40,7 @@ export default function AdminLayout({
         '/ad-position': 'AD Position (W/A/Q)',
         '/categories': 'Categorie Manager',
         '/locations': 'Location Manager',
+        '/packages': 'Settings & Others',
         '/all-settings': 'Settings & Others',
         '/all-settings-show': 'Settings & Others',
     };
