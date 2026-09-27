@@ -74,6 +74,7 @@ export default function DashboardPage() {
     ];
 
     return (
+        <>
         <div className="space-y-4">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-black text-xs mb-2 px-1">
@@ -128,5 +129,6 @@ export default function DashboardPage() {
                 </div>
             </button>
         </div>
+        </>
     );
 }
