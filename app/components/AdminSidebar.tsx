@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
     Home, Folder, User, FileText, Megaphone, Terminal,
     UserPlus, Bell, LayoutGrid, Layers, MapPin, Settings,
-    FileEdit, List, LogOut
+    FileEdit, List, LogOut, Package
 } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { clsx } from 'clsx';
@@ -57,6 +57,7 @@ export default function AdminSidebar({ isCollapsed, toggleCollapse }: AdminSideb
         { href: '/ad-position', label: 'AD Position (W/A/Q)', icon: LayoutGrid },
         { href: '/categories', label: 'Categorie Manager', icon: Layers },
         { href: '/locations', label: 'Location Manager', icon: MapPin },
+        { href: '/packages', label: 'Package Manager', icon: Package },
         { href: '/all-settings', label: 'Settings & Others', icon: Settings },
     ];
 
