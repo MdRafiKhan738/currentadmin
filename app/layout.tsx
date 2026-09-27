@@ -1,1 +1,7 @@
-import "./globals.css";export default function RootLayout({children}:{children:React.ReactNode}){return <html><body>{children}</body></html>}
+import "./globals.css";
+import { Toaster } from "react-hot-toast";
+import { SettingsProvider } from "./context/SettingsContext";
+
+export default function RootLayout({children}:{children:React.ReactNode}){
+  return <html lang="en"><body><SettingsProvider><Toaster position="top-right"/>{children}</SettingsProvider></body></html>;
+}
