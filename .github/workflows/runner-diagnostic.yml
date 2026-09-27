@@ -1,0 +1,15 @@
+name: Runner Diagnostic
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Runner check
+        run: |
+          echo "GitHub Actions runner started successfully"
+          node --version
+          npm --version
