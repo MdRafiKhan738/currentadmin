@@ -306,6 +306,10 @@ export default function CategoriesPage() {
             order: c.order,
             status: c.status,
             icon: null,
+            investmentEnabled: Boolean(c.investmentEnabled),
+            minInvestment: Number(c.minInvestment) || 0,
+            maxInvestment: Number(c.maxInvestment) || 0,
+            expectedReturn: Number(c.expectedReturn) || 0,
         });
         setShowCategoryModal(true);
     };
