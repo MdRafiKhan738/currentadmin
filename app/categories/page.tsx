@@ -362,6 +362,10 @@ export default function CategoriesPage() {
             order: 1,
             status: true,
             icon: null,
+            investmentEnabled: false,
+            minInvestment: 0,
+            maxInvestment: 0,
+            expectedReturn: 0,
         });
         setShowCategoryModal(true);
     };
