@@ -1,3 +1,7 @@
+const configuredApiUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "");
+const isProduction = process.env.NODE_ENV === "production";
+const isLocalApi = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(configuredApiUrl);
 export const API_BASE_URL =
-  (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "") ||
-  (process.env.NODE_ENV === "production" ? "https://currentbackend.onrender.com" : "http://localhost:5000");
+  isProduction && (!configuredApiUrl || isLocalApi)
+    ? "https://currentbackend.onrender.com"
+    : configuredApiUrl || "http://localhost:5000";
