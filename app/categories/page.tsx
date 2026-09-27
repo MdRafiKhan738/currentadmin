@@ -310,10 +310,10 @@ export default function CategoriesPage() {
             order: c.order,
             status: c.status,
             icon: null,
-            investmentEnabled: Boolean(c.investmentEnabled),
-            minInvestment: Number(c.minInvestment) || 0,
-            maxInvestment: Number(c.maxInvestment) || 0,
-            expectedReturn: Number(c.expectedReturn) || 0,
+            investmentEnabled: Boolean((c as Category & { investmentEnabled?: boolean }).investmentEnabled),
+            minInvestment: Number((c as Category & { minInvestment?: number }).minInvestment) || 0,
+            maxInvestment: Number((c as Category & { maxInvestment?: number }).maxInvestment) || 0,
+            expectedReturn: Number((c as Category & { expectedReturn?: number }).expectedReturn) || 0,
         });
         setShowCategoryModal(true);
     };
