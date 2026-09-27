@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, Search, Plus, Trash2, Edit2, CheckCircle2,
@@ -55,12 +56,17 @@ interface SubCategory {
     image?: string;
     priceBoxShow: boolean;
     priceBoxName?: string;
+    minInvestment?: number;
+    maxInvestment?: number;
+    returnType?: 'return' | 'refund';
+    returnProfit?: number;
     tags: string[];
     createdAt: string;
     createdBy?: { adminName: string };
 }
 
 export default function CategoriesPage() {
+    const router = useRouter();
     const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [features, setFeatures] = useState<Feature[]>([]);
@@ -88,6 +94,10 @@ export default function CategoriesPage() {
         status: true,
         priceBoxShow: false,
         priceBoxName: '',
+        minInvestment: 0,
+        maxInvestment: 0,
+        returnType: 'return' as 'return' | 'refund',
+        returnProfit: 0,
         tags: [''],
         image: null as File | null,
     });
@@ -299,6 +309,10 @@ export default function CategoriesPage() {
             status: sc.status,
             priceBoxShow: sc.priceBoxShow || false,
             priceBoxName: sc.priceBoxName || '',
+            minInvestment: Number(sc.minInvestment) || 0,
+            maxInvestment: Number(sc.maxInvestment) || 0,
+            returnType: sc.returnType === 'refund' ? 'refund' : 'return',
+            returnProfit: Number(sc.returnProfit) || 0,
             tags: sc.tags.length > 0 ? sc.tags : [''],
             image: null,
         });
@@ -351,6 +365,10 @@ export default function CategoriesPage() {
             status: true,
             priceBoxShow: false,
             priceBoxName: '',
+            minInvestment: 0,
+            maxInvestment: 0,
+            returnType: 'return',
+            returnProfit: 0,
             tags: [''],
             image: null,
         });
@@ -401,7 +419,7 @@ export default function CategoriesPage() {
         <div className="bg-[#f1f5f9] min-h-screen p-4 font-['Tahoma','Verdana',sans-serif]">
             {/* Breadcrumb Area */}
             <div className="flex items-center gap-1.5 text-xs text-black mb-3 ml-1">
-                <Home className="w-3 h-3" />
+                <button type="button" onClick={() => router.push('/dashboard')} className="hover:text-blue-600"><Home className="w-3 h-3" /></button>
                 <span>/</span>
                 <span>Manage SubCategories</span>
             </div>
@@ -409,7 +427,7 @@ export default function CategoriesPage() {
             {/* Header Area */}
             <div className="bg-white rounded-t-lg border border-slate-200 p-2.5 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                    <button className="text-rose-500 hover:opacity-80 transition-opacity">
+                    <button type="button" onClick={() => router.push('/dashboard')} className="text-rose-500 hover:opacity-80 transition-opacity" aria-label="Back to dashboard">
                         <ArrowLeft className="w-4 h-4 stroke-[3]" />
                     </button>
                     <span className="text-indigo-600 font-bold text-sm tracking-tight">SubCategories</span>
