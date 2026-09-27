@@ -100,6 +100,10 @@ export default function CategoriesPage() {
         order: 1,
         status: true,
         icon: null as File | null,
+        investmentEnabled: false,
+        minInvestment: 0,
+        maxInvestment: 0,
+        expectedReturn: 0,
     });
 
     // Form States - Feature
