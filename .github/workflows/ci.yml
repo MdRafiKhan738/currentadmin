@@ -26,3 +26,5 @@ jobs:
         run: npm run build
 
 # validation trigger
+
+# category validation trigger
