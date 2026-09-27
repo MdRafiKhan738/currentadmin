@@ -720,6 +720,20 @@ export default function CategoriesPage() {
                                             />
                                         )}
                                     </div>
+                                    {/* Investment settings */}
+                                    <div className="space-y-1 col-span-2 border border-slate-200 bg-slate-50 p-3">
+                                        <div className="text-black font-bold">Investment Settings</div>
+                                        <div className="grid grid-cols-2 gap-2 md:grid-cols-4 mt-2">
+                                            <input type="number" min="0" placeholder="Min Investment" className="border border-slate-300 px-2 py-1.5" value={subCatForm.minInvestment} onChange={e => setSubCatForm({ ...subCatForm, minInvestment: Number(e.target.value) })} />
+                                            <input type="number" min="0" placeholder="Max Investment" className="border border-slate-300 px-2 py-1.5" value={subCatForm.maxInvestment} onChange={e => setSubCatForm({ ...subCatForm, maxInvestment: Number(e.target.value) })} />
+                                            <select value={subCatForm.returnType} onChange={e => setSubCatForm({ ...subCatForm, returnType: e.target.value as 'return' | 'refund' })} className="border border-slate-300 px-2 py-1.5">
+                                                <option value="return">Return %</option>
+                                                <option value="refund">Refund %</option>
+                                            </select>
+                                            <input type="number" min="0" step="0.01" placeholder={subCatForm.returnType === 'refund' ? 'Refund / Return Profit %' : 'Expected Return %'} className="border border-slate-300 px-2 py-1.5" value={subCatForm.returnProfit} onChange={e => setSubCatForm({ ...subCatForm, returnProfit: Number(e.target.value) })} />
+                                        </div>
+                                    </div>
+
                                     {/* Order */}
                                     <div className="space-y-1 col-span-1">
                                         <label className="text-black font-bold text-[13px]">Order</label>
