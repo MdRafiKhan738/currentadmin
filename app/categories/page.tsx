@@ -12,8 +12,8 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
-import { API_BASE_URL } from '../../../utils/apiConfig';
-import { getImageUrl } from '../../../utils/imageUrl';
+import { API_BASE_URL } from '@/utils/apiConfig';
+import { getImageUrl } from '@/utils/imageUrl';
 
 function cn(...inputs: (string | undefined | null | false)[]) {
     return twMerge(clsx(inputs));
