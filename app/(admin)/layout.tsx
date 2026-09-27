@@ -41,6 +41,7 @@ export default function AdminLayout({
         '/categories': 'Categorie Manager',
         '/locations': 'Location Manager',
         '/all-settings': 'Settings & Others',
+        '/all-settings-show': 'Settings & Others',
     };
 
     const syncUserData = async (token: string) => {
