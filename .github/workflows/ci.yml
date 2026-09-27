@@ -1,0 +1,27 @@
+name: Next.js CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:5000
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:5000
+        run: npm run build
