@@ -719,25 +719,22 @@ export default function UserManagement() {
 
                                 <div className="border border-slate-200 p-3 space-y-4">
                                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                        <div className="flex bg-slate-100 p-0.5 rounded-sm overflow-hidden border border-slate-200">
+                                        <div className="flex max-w-[620px] overflow-x-auto bg-slate-100 p-0.5 rounded-sm border border-slate-200">
                                             <button
-                                                onClick={() => setSearchFilters(prev => ({ ...prev, merchantType: 'both' }))}
-                                                className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors", searchFilters.merchantType === 'both' ? "bg-rose-500 text-white" : "text-black")}
+                                                onClick={() => setSearchFilters(prev => ({ ...prev, category: 'Select' }))}
+                                                className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors whitespace-nowrap", searchFilters.category === 'Select' ? "bg-rose-500 text-white" : "text-black")}
                                             >
-                                                Both
+                                                All
                                             </button>
-                                            <button
-                                                onClick={() => setSearchFilters(prev => ({ ...prev, merchantType: 'seller' }))}
-                                                className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors", searchFilters.merchantType === 'seller' ? "bg-emerald-600 text-white" : "text-black")}
-                                            >
-                                                Seller
-                                            </button>
-                                            <button
-                                                onClick={() => setSearchFilters(prev => ({ ...prev, merchantType: 'customer' }))}
-                                                className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors", searchFilters.merchantType === 'customer' ? "bg-emerald-600 text-white" : "text-black")}
-                                            >
-                                                Customer
-                                            </button>
+                                            {investmentCategories.map((category: any) => (
+                                                <button
+                                                    key={category._id}
+                                                    onClick={() => setSearchFilters(prev => ({ ...prev, category: category.name }))}
+                                                    className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors whitespace-nowrap", searchFilters.category === category.name ? "bg-emerald-600 text-white" : "text-black")}
+                                                >
+                                                    {category.name}
+                                                </button>
+                                            ))}
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <button
