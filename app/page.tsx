@@ -1,1 +1,2 @@
-import Link from "next/link";export default function Home(){return <main className="min-h-screen p-8"><h1 className="text-3xl font-bold">Current Shadamon Admin</h1><div className="mt-6 flex gap-3"><Link className="rounded bg-emerald-700 px-5 py-3 text-white" href="/packages">Package Manager</Link><Link className="rounded border bg-white px-5 py-3" href="/categories">Investment Categories</Link></div></main>}
+import { redirect } from "next/navigation";
+export default function Home(){ redirect("/dashboard"); }
