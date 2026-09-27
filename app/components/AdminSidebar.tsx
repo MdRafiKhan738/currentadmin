@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
     Home, Folder, User, FileText, Megaphone, Terminal,
     UserPlus, Bell, LayoutGrid, Layers, MapPin, Settings,
-    FileEdit, List, LogOut, Package, Star, Activity
+    FileEdit, List, LogOut
 } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { clsx } from 'clsx';
@@ -47,17 +47,15 @@ export default function AdminSidebar({ isCollapsed, toggleCollapse }: AdminSideb
 
     const menuItems = [
         { href: '/dashboard', label: 'Dashboard', icon: Home },
-        { href: '/posts', label: 'Post Management', permission: 'Post', icon: Folder },
-        { href: '/users', label: 'User Analytics', permission: 'User', icon: User },
+        { href: '/posts', label: 'Post', icon: Folder },
+        { href: '/users', label: 'User', icon: User },
         { href: '/reports', label: 'Report', icon: FileText },
-        { href: '/promoted-ads', label: 'Promotion Management', icon: Megaphone },
-        { href: '/packages', label: 'Package Manager', icon: Package },
-        { href: '/packages#refund-credit', label: 'Credits & Refunds', icon: Star },
-        { href: '/transaction-manager', label: 'Transaction Reports', icon: Activity },
+        { href: '/promoted-ads', label: 'Promote Management', icon: Megaphone },
+        { href: '/transaction-manager', label: 'Transaction Manager', icon: Terminal },
         { href: '/admin-create', label: 'Admin Create', icon: UserPlus },
         { href: '/notifications', label: 'Notification & Messaging', icon: Bell },
         { href: '/ad-position', label: 'AD Position (W/A/Q)', icon: LayoutGrid },
-        { href: '/categories', label: 'Category Management', permission: 'Categorie Manager', icon: Layers },
+        { href: '/categories', label: 'Categorie Manager', icon: Layers },
         { href: '/locations', label: 'Location Manager', icon: MapPin },
         { href: '/all-settings', label: 'Settings & Others', icon: Settings },
     ];
@@ -66,13 +64,8 @@ export default function AdminSidebar({ isCollapsed, toggleCollapse }: AdminSideb
         if (!user) return false;
         if (item.label === 'Dashboard') return true;
 
-        // Bypass permissions for newly added Task 3 pages
-        if (['Post Management', 'Package Manager', 'Credits & Refunds', 'Transaction Reports'].includes(item.label)) {
-            return true;
-        }
-
         // Check permissions
-        return user.permissions?.[item.permission || item.label] === true;
+        return user.permissions?.[item.label] === true;
     });
 
     const MenuItem = ({ item, isSub = false }: { item: any, isSub?: boolean }) => {
@@ -81,6 +74,7 @@ export default function AdminSidebar({ isCollapsed, toggleCollapse }: AdminSideb
 
         return (
             <Link
+                key={item.href}
                 href={item.href}
                 className={cn(
                     "flex items-center gap-2.5 px-4 py-1 transition-all text-sm font-medium group relative overflow-hidden whitespace-nowrap",
@@ -108,7 +102,7 @@ export default function AdminSidebar({ isCollapsed, toggleCollapse }: AdminSideb
         >
             <div className="flex-1 py-3 flex flex-col gap-0.5 overflow-y-auto no-scrollbar">
                 {filteredMenuItems.map((item) => (
-                    <MenuItem key={item.label} item={item} />
+                    <MenuItem key={item.href} item={item} />
                 ))}
             </div>
 
