@@ -497,6 +497,13 @@ export default function UserManagement() {
         }
     };
 
+    const investmentCategories = categories.filter((category: any) => {
+        const name = String(category?.name || '').toLowerCase();
+        return Boolean(category?.investmentEnabled) ||
+            name.includes('investor') ||
+            name.includes('business owner');
+    });
+
     const filteredUsers = users.filter(user => {
         const matchesSearch =
             !searchQuery ||
@@ -505,13 +512,10 @@ export default function UserManagement() {
             user.storeName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.mobile?.toLowerCase().includes(searchQuery.toLowerCase());
 
-        const isSeller = user.merchantType === 'Premium' || user.merchantType === 'Free Saller';
-        const isCustomer = user.merchantType === 'Free';
-
         const matchesType =
             userTypeFilter === 'both' ||
-            (userTypeFilter === 'seller' && isSeller) ||
-            (userTypeFilter === 'customer' && isCustomer);
+            user.category === userTypeFilter ||
+            user.investmentRole === userTypeFilter;
 
         return matchesSearch && matchesType;
     });
@@ -555,40 +559,35 @@ export default function UserManagement() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <div className="flex bg-slate-100 p-0.5 rounded-sm overflow-hidden border border-slate-200">
+                    <div className="flex max-w-[620px] overflow-x-auto bg-slate-100 p-0.5 rounded-sm border border-slate-200">
                         <button
                             onClick={() => {
                                 setUserTypeFilter('both');
-                                setSearchFilters(prev => ({ ...prev, merchantType: 'both' }));
+                                setSearchFilters(prev => ({ ...prev, category: 'Select', merchantType: 'both' }));
                                 setCurrentPage(1);
-                                fetchUsers({ ...searchFilters, merchantType: 'both' }, 1);
+                                fetchUsers({ ...searchFilters, category: 'Select', merchantType: 'both' }, 1);
                             }}
-                            className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors", userTypeFilter === 'both' ? "bg-rose-500 text-white" : "text-black")}
+                            className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors whitespace-nowrap", userTypeFilter === 'both' ? "bg-rose-500 text-white" : "text-black")}
                         >
-                            ⇋ Both
+                            ⇋ All
                         </button>
-                        <button
-                            onClick={() => {
-                                setUserTypeFilter('seller');
-                                setSearchFilters(prev => ({ ...prev, merchantType: 'seller' }));
-                                setCurrentPage(1);
-                                fetchUsers({ ...searchFilters, merchantType: 'seller' }, 1);
-                            }}
-                            className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors", userTypeFilter === 'seller' ? "bg-emerald-600 text-white" : "text-black")}
-                        >
-                            Seller
-                        </button>
-                        <button
-                            onClick={() => {
-                                setUserTypeFilter('customer');
-                                setSearchFilters(prev => ({ ...prev, merchantType: 'customer' }));
-                                setCurrentPage(1);
-                                fetchUsers({ ...searchFilters, merchantType: 'customer' }, 1);
-                            }}
-                            className={cn("px-2 py-1 text-xs font-bold rounded-sm transition-colors", userTypeFilter === 'customer' ? "bg-emerald-600 text-white" : "text-black")}
-                        >
-                            Customer
-                        </button>
+                        {investmentCategories.map((category: any) => (
+                            <button
+                                key={category._id}
+                                onClick={() => {
+                                    setUserTypeFilter(category.name);
+                                    setSearchFilters(prev => ({ ...prev, category: category.name, merchantType: 'both' }));
+                                    setCurrentPage(1);
+                                    fetchUsers({ ...searchFilters, category: category.name, merchantType: 'both' }, 1);
+                                }}
+                                className={cn(
+                                    "px-2 py-1 text-xs font-bold rounded-sm transition-colors whitespace-nowrap",
+                                    userTypeFilter === category.name ? "bg-emerald-600 text-white" : "text-black"
+                                )}
+                            >
+                                {category.name}
+                            </button>
+                        ))}
                     </div>
                     <button
                         onClick={handleBulkDelete}
