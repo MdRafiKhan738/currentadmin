@@ -419,7 +419,7 @@ export default function CategoriesPage() {
         <div className="bg-[#f1f5f9] min-h-screen p-4 font-['Tahoma','Verdana',sans-serif]">
             {/* Breadcrumb Area */}
             <div className="flex items-center gap-1.5 text-xs text-black mb-3 ml-1">
-                <button type="button" onClick={() => window.location.href = '/dashboard'} className="hover:text-blue-600"><Home className="w-3 h-3" /></button>
+                <button type="button" onClick={() => router.push('/dashboard')} className="hover:text-blue-600"><Home className="w-3 h-3" /></button>
                 <span>/</span>
                 <span>Manage SubCategories</span>
             </div>
@@ -427,7 +427,7 @@ export default function CategoriesPage() {
             {/* Header Area */}
             <div className="bg-white rounded-t-lg border border-slate-200 p-2.5 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                    <button type="button" onClick={() => window.location.href = '/dashboard'} className="text-rose-500 hover:opacity-80 transition-opacity" aria-label="Back to dashboard">
+                    <button type="button" onClick={() => router.push('/dashboard')} className="text-rose-500 hover:opacity-80 transition-opacity" aria-label="Back to dashboard">
                         <ArrowLeft className="w-4 h-4 stroke-[3]" />
                     </button>
                     <span className="text-indigo-600 font-bold text-sm tracking-tight">SubCategories</span>
