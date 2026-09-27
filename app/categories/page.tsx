@@ -172,6 +172,10 @@ export default function CategoriesPage() {
             formData.append('status', String(subCatForm.status));
             formData.append('priceBoxShow', String(subCatForm.priceBoxShow));
             formData.append('priceBoxName', subCatForm.priceBoxName);
+            formData.append('minInvestment', String(subCatForm.minInvestment || 0));
+            formData.append('maxInvestment', String(subCatForm.maxInvestment || 0));
+            formData.append('returnType', subCatForm.returnType);
+            formData.append('returnProfit', String(subCatForm.returnProfit || 0));
             subCatForm.tags.filter(t => t.trim()).forEach(tag => formData.append('tags', tag));
             if (subCatForm.image) formData.append('image', subCatForm.image);
 
