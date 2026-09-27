@@ -43,6 +43,7 @@ interface SubLocation {
 }
 
 export default function LocationsPage() {
+    const router = useRouter();
     const [subLocations, setSubLocations] = useState<SubLocation[]>([]);
     const [locations, setLocations] = useState<Location[]>([]);
     const [isLoading, setIsLoading] = useState(true);
