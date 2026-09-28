@@ -104,31 +104,7 @@ export default function CategoriesPage() {
         status: true,
         priceBoxShow: false,
         priceBoxName: '',
-        priceBoxFields: [{
-            key: 'minInvestment',
-            label: 'Min Investment',
-            labelBn: 'সর্বনিম্ন বিনিয়োগ',
-            placeholder: 'Minimum investment',
-            inputType: 'number',
-            required: true,
-            order: 0
-        }, {
-            key: 'maxInvestment',
-            label: 'Max Investment',
-            labelBn: 'সর্বোচ্চ বিনিয়োগ',
-            placeholder: 'Maximum investment',
-            inputType: 'number',
-            required: true,
-            order: 1
-        }, {
-            key: 'expectedReturn',
-            label: 'Expected Return %',
-            labelBn: 'প্রত্যাশিত রিটার্ন %',
-            placeholder: 'Expected return',
-            inputType: 'number',
-            required: true,
-            order: 2
-        }],
+        priceBoxFields: [],
         minInvestment: 0,
         maxInvestment: 0,
         returnType: 'return' as 'return' | 'refund',
@@ -218,9 +194,11 @@ export default function CategoriesPage() {
             formData.append('priceBoxShow', String(subCatForm.priceBoxShow));
             formData.append('priceBoxName', subCatForm.priceBoxName);
             formData.append('priceBoxFields', JSON.stringify(
-                subCatForm.priceBoxFields
-                    .filter(field => field.key.trim() && field.label.trim())
-                    .map((field, index) => ({ ...field, order: index }))
+                subCatForm.priceBoxShow
+                    ? subCatForm.priceBoxFields
+                        .filter(field => field.key.trim() && field.label.trim())
+                        .map((field, index) => ({ ...field, order: index }))
+                    : []
             ));
             formData.append('minInvestment', String(subCatForm.minInvestment || 0));
             formData.append('maxInvestment', String(subCatForm.maxInvestment || 0));
@@ -349,7 +327,7 @@ export default function CategoriesPage() {
             status: sc.status,
             priceBoxShow: sc.priceBoxShow || false,
             priceBoxName: sc.priceBoxName || '',
-            priceBoxFields: sc.priceBoxFields?.length ? sc.priceBoxFields.map((field: any, index: number) => ({
+            priceBoxFields: sc.priceBoxShow && sc.priceBoxFields?.length ? sc.priceBoxFields.map((field: any, index: number) => ({
                 key: field.key || `field_${index + 1}`,
                 label: field.label || '',
                 labelBn: field.labelBn || '',
@@ -851,20 +829,6 @@ export default function CategoriesPage() {
                                             </div>
                                         </div>
                                     )}
-
-                                    {/* Investment settings */}
-                                    <div className="space-y-1 col-span-2 border border-slate-200 bg-slate-50 p-3">
-                                        <div className="text-black font-bold">Investment Settings</div>
-                                        <div className="grid grid-cols-2 gap-2 md:grid-cols-4 mt-2">
-                                            <input type="number" min="0" placeholder="Min Investment" className="border border-slate-300 px-2 py-1.5" value={subCatForm.minInvestment} onChange={e => setSubCatForm({ ...subCatForm, minInvestment: Number(e.target.value) })} />
-                                            <input type="number" min="0" placeholder="Max Investment" className="border border-slate-300 px-2 py-1.5" value={subCatForm.maxInvestment} onChange={e => setSubCatForm({ ...subCatForm, maxInvestment: Number(e.target.value) })} />
-                                            <select value={subCatForm.returnType} onChange={e => setSubCatForm({ ...subCatForm, returnType: e.target.value as 'return' | 'refund' })} className="border border-slate-300 px-2 py-1.5">
-                                                <option value="return">Return %</option>
-                                                <option value="refund">Refund %</option>
-                                            </select>
-                                            <input type="number" min="0" step="0.01" placeholder={subCatForm.returnType === 'refund' ? 'Refund / Return Profit %' : 'Expected Return %'} className="border border-slate-300 px-2 py-1.5" value={subCatForm.returnProfit} onChange={e => setSubCatForm({ ...subCatForm, returnProfit: Number(e.target.value) })} />
-                                        </div>
-                                    </div>
 
                                     {/* Order */}
                                     <div className="space-y-1 col-span-1">
