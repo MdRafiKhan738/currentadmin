@@ -1011,15 +1011,6 @@ export default function CategoriesPage() {
                                                 </div>
 
                                                 <div className="flex gap-2 h-max self-end mt-1">
-                                                <div className="col-span-2 rounded border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                                    <div className="font-bold text-black">Investment Configuration</div>
-                                                    <label className="flex items-center gap-2 font-semibold"><input type="checkbox" checked={catForm.investmentEnabled} onChange={e=>setCatForm({...catForm,investmentEnabled:e.target.checked})}/> Investment Enabled</label>
-                                                    <div className="grid grid-cols-3 gap-3">
-                                                        <input type="number" min="0" placeholder="Min Investment" className="border border-slate-300 px-2 py-1.5" value={catForm.minInvestment} onChange={e=>setCatForm({...catForm,minInvestment:Number(e.target.value)})}/>
-                                                        <input type="number" min="0" placeholder="Max Investment" className="border border-slate-300 px-2 py-1.5" value={catForm.maxInvestment} onChange={e=>setCatForm({...catForm,maxInvestment:Number(e.target.value)})}/>
-                                                        <input type="number" min="0" step="0.01" placeholder="Expected Return %" className="border border-slate-300 px-2 py-1.5" value={catForm.expectedReturn} onChange={e=>setCatForm({...catForm,expectedReturn:Number(e.target.value)})}/>
-                                                    </div>
-                                                </div>
                                                     <button type="submit" className="bg-[#127ef3] text-white flex-1 py-1.5 font-bold rounded-sm border border-blue-800 shadow-inner px-12">
                                                         Save
                                                     </button>
