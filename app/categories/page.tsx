@@ -43,6 +43,17 @@ interface Category {
     icon?: string;
 }
 
+type PriceBoxField = {
+    key: string;
+    label: string;
+    labelBn?: string;
+    placeholder?: string;
+    placeholderBn?: string;
+    inputType?: 'text' | 'number';
+    required?: boolean;
+    order?: number;
+};
+
 interface SubCategory {
     _id: string;
     name: string;
@@ -56,16 +67,7 @@ interface SubCategory {
     image?: string;
     priceBoxShow: boolean;
     priceBoxName?: string;
-    priceBoxFields?: Array<{
-        key: string;
-        label: string;
-        labelBn?: string;
-        placeholder?: string;
-        placeholderBn?: string;
-        inputType?: 'text' | 'number';
-        required?: boolean;
-        order?: number;
-    }>;
+    priceBoxFields?: PriceBoxField[];
     minInvestment?: number;
     maxInvestment?: number;
     returnType?: 'return' | 'refund';
@@ -93,7 +95,25 @@ export default function CategoriesPage() {
     const [editingFeatId, setEditingFeatId] = useState<string | null>(null);
 
     // Form States - SubCategory (Main Modal)
-    const [subCatForm, setSubCatForm] = useState({
+    const [subCatForm, setSubCatForm] = useState<{
+        names: string[];
+        nameBns: string[];
+        category: string;
+        features: string[];
+        buttonType: string;
+        freePost: number;
+        order: number;
+        status: boolean;
+        priceBoxShow: boolean;
+        priceBoxName: string;
+        priceBoxFields: PriceBoxField[];
+        minInvestment: number;
+        maxInvestment: number;
+        returnType: 'return' | 'refund';
+        returnProfit: number;
+        tags: string[];
+        image: File | null;
+    }>({
         names: [''], // Multiple names support
         nameBns: [''],
         category: '',
