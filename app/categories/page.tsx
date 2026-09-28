@@ -56,6 +56,16 @@ interface SubCategory {
     image?: string;
     priceBoxShow: boolean;
     priceBoxName?: string;
+    priceBoxFields?: Array<{
+        key: string;
+        label: string;
+        labelBn?: string;
+        placeholder?: string;
+        placeholderBn?: string;
+        inputType?: 'text' | 'number';
+        required?: boolean;
+        order?: number;
+    }>;
     minInvestment?: number;
     maxInvestment?: number;
     returnType?: 'return' | 'refund';
@@ -94,6 +104,31 @@ export default function CategoriesPage() {
         status: true,
         priceBoxShow: false,
         priceBoxName: '',
+        priceBoxFields: [{
+            key: 'minInvestment',
+            label: 'Min Investment',
+            labelBn: 'সর্বনিম্ন বিনিয়োগ',
+            placeholder: 'Minimum investment',
+            inputType: 'number',
+            required: true,
+            order: 0
+        }, {
+            key: 'maxInvestment',
+            label: 'Max Investment',
+            labelBn: 'সর্বোচ্চ বিনিয়োগ',
+            placeholder: 'Maximum investment',
+            inputType: 'number',
+            required: true,
+            order: 1
+        }, {
+            key: 'expectedReturn',
+            label: 'Expected Return %',
+            labelBn: 'প্রত্যাশিত রিটার্ন %',
+            placeholder: 'Expected return',
+            inputType: 'number',
+            required: true,
+            order: 2
+        }],
         minInvestment: 0,
         maxInvestment: 0,
         returnType: 'return' as 'return' | 'refund',
@@ -182,6 +217,11 @@ export default function CategoriesPage() {
             formData.append('status', String(subCatForm.status));
             formData.append('priceBoxShow', String(subCatForm.priceBoxShow));
             formData.append('priceBoxName', subCatForm.priceBoxName);
+            formData.append('priceBoxFields', JSON.stringify(
+                subCatForm.priceBoxFields
+                    .filter(field => field.key.trim() && field.label.trim())
+                    .map((field, index) => ({ ...field, order: index }))
+            ));
             formData.append('minInvestment', String(subCatForm.minInvestment || 0));
             formData.append('maxInvestment', String(subCatForm.maxInvestment || 0));
             formData.append('returnType', subCatForm.returnType);
@@ -309,6 +349,16 @@ export default function CategoriesPage() {
             status: sc.status,
             priceBoxShow: sc.priceBoxShow || false,
             priceBoxName: sc.priceBoxName || '',
+            priceBoxFields: sc.priceBoxFields?.length ? sc.priceBoxFields.map((field: any, index: number) => ({
+                key: field.key || `field_${index + 1}`,
+                label: field.label || '',
+                labelBn: field.labelBn || '',
+                placeholder: field.placeholder || '',
+                placeholderBn: field.placeholderBn || '',
+                inputType: field.inputType === 'text' ? 'text' : 'number',
+                required: Boolean(field.required),
+                order: Number(field.order ?? index)
+            })) : [],
             minInvestment: Number(sc.minInvestment) || 0,
             maxInvestment: Number(sc.maxInvestment) || 0,
             returnType: sc.returnType === 'refund' ? 'refund' : 'return',
@@ -365,6 +415,31 @@ export default function CategoriesPage() {
             status: true,
             priceBoxShow: false,
             priceBoxName: '',
+            priceBoxFields: [{
+                key: 'minInvestment',
+                label: 'Min Investment',
+                labelBn: 'সর্বনিম্ন বিনিয়োগ',
+                placeholder: 'Minimum investment',
+                inputType: 'number',
+                required: true,
+                order: 0
+            }, {
+                key: 'maxInvestment',
+                label: 'Max Investment',
+                labelBn: 'সর্বোচ্চ বিনিয়োগ',
+                placeholder: 'Maximum investment',
+                inputType: 'number',
+                required: true,
+                order: 1
+            }, {
+                key: 'expectedReturn',
+                label: 'Expected Return %',
+                labelBn: 'প্রত্যাশিত রিটার্ন %',
+                placeholder: 'Expected return',
+                inputType: 'number',
+                required: true,
+                order: 2
+            }],
             minInvestment: 0,
             maxInvestment: 0,
             returnType: 'return',
@@ -738,6 +813,45 @@ export default function CategoriesPage() {
                                             />
                                         )}
                                     </div>
+                                    {subCatForm.priceBoxShow && (
+                                        <div className="col-span-2 rounded border border-emerald-200 bg-emerald-50/40 p-3">
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <div>
+                                                    <div className="font-bold text-black">Dynamic Price Box Fields</div>
+                                                    <div className="text-[10px] text-slate-500">These fields appear automatically when this subcategory is selected for a post.</div>
+                                                </div>
+                                                <button type="button" onClick={() => setSubCatForm({
+                                                    ...subCatForm,
+                                                    priceBoxFields: [...subCatForm.priceBoxFields, {
+                                                        key: `field_${subCatForm.priceBoxFields.length + 1}`,
+                                                        label: '',
+                                                        labelBn: '',
+                                                        placeholder: '',
+                                                        placeholderBn: '',
+                                                        inputType: 'text',
+                                                        required: false,
+                                                        order: subCatForm.priceBoxFields.length
+                                                    }]
+                                                })} className="rounded bg-emerald-700 px-3 py-1.5 text-[11px] font-bold text-white">+ Add Field</button>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {subCatForm.priceBoxFields.map((field, index) => (
+                                                    <div key={index} className="grid grid-cols-12 gap-2 rounded border border-slate-200 bg-white p-2">
+                                                        <input value={field.key} onChange={e => {
+                                                            const fields = [...subCatForm.priceBoxFields]; fields[index] = { ...fields[index], key: e.target.value.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '') }; setSubCatForm({ ...subCatForm, priceBoxFields: fields });
+                                                        }} placeholder="Key: camel_count" className="col-span-3 border border-slate-300 px-2 py-1.5 text-[11px]" />
+                                                        <input value={field.label} onChange={e => { const fields=[...subCatForm.priceBoxFields]; fields[index]={...fields[index],label:e.target.value}; setSubCatForm({...subCatForm,priceBoxFields:fields}); }} placeholder="Label: Camel" className="col-span-2 border border-slate-300 px-2 py-1.5 text-[11px]" />
+                                                        <input value={field.labelBn || ''} onChange={e => { const fields=[...subCatForm.priceBoxFields]; fields[index]={...fields[index],labelBn:e.target.value}; setSubCatForm({...subCatForm,priceBoxFields:fields}); }} placeholder="Bangla label" className="col-span-2 border border-slate-300 px-2 py-1.5 text-[11px]" />
+                                                        <input value={field.placeholder || ''} onChange={e => { const fields=[...subCatForm.priceBoxFields]; fields[index]={...fields[index],placeholder:e.target.value}; setSubCatForm({...subCatForm,priceBoxFields:fields}); }} placeholder="Placeholder" className="col-span-2 border border-slate-300 px-2 py-1.5 text-[11px]" />
+                                                        <select value={field.inputType || 'text'} onChange={e => { const fields=[...subCatForm.priceBoxFields]; fields[index]={...fields[index],inputType:e.target.value as 'text'|'number'}; setSubCatForm({...subCatForm,priceBoxFields:fields}); }} className="col-span-1 border border-slate-300 px-2 py-1.5 text-[11px]"><option value="text">Text</option><option value="number">Number</option></select>
+                                                        <label className="col-span-1 flex items-center justify-center gap-1 text-[10px]"><input type="checkbox" checked={Boolean(field.required)} onChange={e => { const fields=[...subCatForm.priceBoxFields]; fields[index]={...fields[index],required:e.target.checked}; setSubCatForm({...subCatForm,priceBoxFields:fields}); }} /> Req</label>
+                                                        <button type="button" onClick={() => setSubCatForm({...subCatForm,priceBoxFields:subCatForm.priceBoxFields.filter((_,i)=>i!==index)})} className="col-span-1 rounded bg-red-50 px-2 text-red-600">×</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Investment settings */}
                                     <div className="space-y-1 col-span-2 border border-slate-200 bg-slate-50 p-3">
                                         <div className="text-black font-bold">Investment Settings</div>
