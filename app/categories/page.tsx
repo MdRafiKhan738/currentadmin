@@ -778,7 +778,7 @@ export default function CategoriesPage() {
                                                 <input type="radio" checked={subCatForm.priceBoxShow} onChange={() => setSubCatForm({ ...subCatForm, priceBoxShow: true })} className="w-3.5 h-3.5 accent-blue-600" /> Yes
                                             </label>
                                             <label className="flex items-center gap-1.5 cursor-pointer font-bold text-black text-[13px]">
-                                                <input type="radio" checked={!subCatForm.priceBoxShow} onChange={() => setSubCatForm({ ...subCatForm, priceBoxShow: false })} className="w-3.5 h-3.5 accent-blue-600" /> No
+                                                <input type="radio" checked={!subCatForm.priceBoxShow} onChange={() => setSubCatForm({ ...subCatForm, priceBoxShow: false, priceBoxName: '', priceBoxFields: [] })} className="w-3.5 h-3.5 accent-blue-600" /> No
                                             </label>
                                         </div>
                                         {subCatForm.priceBoxShow && (
