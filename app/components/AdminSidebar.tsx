@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Folder, User, FileText, Megaphone, Terminal, UserPlus, Bell, LayoutGrid, Layers, MapPin, Settings, LogOut, Package, SlidersHorizontal, UserRoundCog } from 'lucide-react';
+import { Home, Folder, User, FileText, Megaphone, Terminal, UserPlus, Bell, LayoutGrid, Layers, MapPin, Settings, LogOut, Package, UserRoundCog } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -19,7 +19,7 @@ export default function AdminSidebar({ isCollapsed }: AdminSidebarProps) {
         { href: '/promoted-ads', label: 'Promote Management', icon: Megaphone }, { href: '/transaction-manager', label: 'Transaction Manager', icon: Terminal },
         { href: '/admin-create', label: 'Admin Create', icon: UserPlus }, { href: '/notifications', label: 'Notification & Messaging', icon: Bell },
         { href: '/ad-position', label: 'AD Position (W/A/Q)', icon: LayoutGrid }, { href: '/categories', label: 'Categorie Manager', icon: Layers },
-        { href: '/categories/price-box', label: 'Dynamic Price Box', icon: SlidersHorizontal, permission: 'Categorie Manager' }, { href: '/locations', label: 'Location Manager', icon: MapPin },
+{ href: '/locations', label: 'Location Manager', icon: MapPin },
         { href: '/packages', label: 'Package Manager', icon: Package }, { href: '/all-settings', label: 'Settings & Others', icon: Settings }
     ];
     const filteredMenuItems = menuItems.filter(item => { if (!user) return false; if (item.label === 'Dashboard') return true; return user.permissions?.[item.permission || item.label] === true; });
