@@ -9,7 +9,12 @@ type U = any;
 type HistoryRow = any;
 const blank: P = { name: "", packageType: "You", oldPrice: 0, price: 0, total_connects: 0, maxProfileView: 0, validDays: 30, bestValueSuggestion: false, checkedFeatures: [], uncheckedFeatures: [], isActive: true };
 
-const formatDate = (value: any) => value ? new Date(value).toLocaleDateString("en-GB") : "—";
+const formatDate = (value: any) => value ? new Date(value).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+const daysUntil = (value: any) => {
+  if (!value) return 0;
+  const diff = new Date(value).getTime() - Date.now();
+  return Math.max(0, Math.ceil(diff / (24 * 60 * 60 * 1000)));
+};
 
 export default function Packages() {
   const [p, setP] = useState<P>(blank), [rows, setRows] = useState<P[]>([]), [edit, setEdit] = useState(false), [loading, setLoading] = useState(true);
@@ -33,7 +38,20 @@ export default function Packages() {
       const r = await fetch(API + "/api/packages/admin/search-user?query=" + encodeURIComponent(value.trim()), { headers });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "User not found");
-      setUser(j.data); setConnects(""); setTargetConnects(String(j.data?.connectsBalance ?? "")); setValidDays("30");
+      setUser(j.data);
+      const activeId = j.data?.activePackage?.packageId ? String(j.data.activePackage.packageId) : "";
+      const active = rows.find((row) => String(row._id) === activeId);
+      if (active) {
+        setP(active);
+        setValidDays(String(active.validDays || daysUntil(j.data?.activePackage?.validTill) || 30));
+        setConnects(String(active.maxProfileView || active.total_connects || ""));
+      } else {
+        setP(blank);
+        setValidDays(String(daysUntil(j.data?.activePackage?.validTill) || 30));
+        setConnects("");
+      }
+      setTargetConnects(String(j.data?.connectsBalance ?? ""));
+      await loadHistory(j.data?._id);
       await loadHistory(j.data?._id);
     } catch (e: any) { setUser(null); setMessage(e.message || "User not found"); }
     finally { setSearching(false); }
@@ -106,11 +124,22 @@ export default function Packages() {
           <div className="grid gap-3 lg:grid-cols-4">
             <label className="block"><span className="mb-1 block text-[11px] font-semibold text-slate-500">Search by email / number / ID</span><input autoComplete="off" value={mobile} onChange={e => setMobile(e.target.value)} placeholder="01XXXXXXXXX" className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-emerald-500" /></label>
             <label className="block"><span className="mb-1 block text-[11px] font-semibold text-slate-500">User</span><input readOnly value={user?.name || "—"} className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm" /></label>
-            <label className="block"><span className="mb-1 block text-[11px] font-semibold text-slate-500">Package</span><select value={p._id || ""} onChange={e => { const x = rows.find(r => r._id === e.target.value); if (x) setP(x); }} className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option value="">Select package</option>{rows.filter(x => x.isActive).map(x => <option key={x._id} value={x._id}>{x.name} — {x.packageType}</option>)}</select></label>
+            <label className="block"><span className="mb-1 block text-[11px] font-semibold text-slate-500">Package</span><select value={p._id || ""} onChange={e => {
+              const x = rows.find(r => r._id === e.target.value);
+              if (x) {
+                setP(x);
+                setConnects(String(x.maxProfileView || x.total_connects || ""));
+                setValidDays(String(x.validDays || 30));
+              } else {
+                setP(blank);
+                setConnects("");
+                setValidDays("30");
+              }
+            }} className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option value="">Select package</option>{rows.filter(x => x.isActive).map(x => <option key={x._id} value={x._id}>{x.name} — {x.packageType}</option>)}</select></label>
             <label className="block"><span className="mb-1 block text-[11px] font-semibold text-slate-500">Current Connect</span><input type="number" min="0" value={targetConnects} onChange={e => setTargetConnects(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-bold outline-none focus:border-emerald-500" /></label>
           </div>
 
-          {user && <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4"><div className="grid gap-3 md:grid-cols-4"><div><span className="text-[10px] font-semibold uppercase text-slate-400">Name</span><p className="text-sm font-bold">{user.name || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Number</span><p className="text-sm font-bold">{user.mobile || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Active package</span><p className="text-sm font-bold">{user.activePackage?.name || "No package"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Valid to</span><p className="text-sm font-bold">{formatDate(user.activePackage?.validTill || user.validityDate)}</p></div></div>
+          {user && <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4"><div className="grid gap-3 md:grid-cols-4"><div><span className="text-[10px] font-semibold uppercase text-slate-400">Name</span><p className="text-sm font-bold">{user.name || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Number</span><p className="text-sm font-bold">{user.mobile || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Active package</span><p className="text-sm font-bold">{user.activePackage?.name || "No package"}{user.activePackage?.type ? <span className="ml-1 text-[10px] font-semibold text-emerald-600">({user.activePackage.type})</span> : null}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Valid to</span><p className="text-sm font-bold">{formatDate(user.activePackage?.validTill || user.validityDate)}</p></div></div>
             <div className="mt-4 grid gap-3 lg:grid-cols-[160px_1fr_170px_150px]"><input value={connects} onChange={e => setConnects(e.target.value)} type="number" min="1" placeholder="Connects to add" className="rounded-lg border px-3 py-2.5 text-sm"/><input value={note} onChange={e => setNote(e.target.value)} placeholder="Package / adjustment note" className="rounded-lg border px-3 py-2.5 text-sm"/><input value={targetConnects} onChange={e => setTargetConnects(e.target.value)} type="number" min="0" placeholder="Set current connect" className="rounded-lg border px-3 py-2.5 text-sm"/><button onClick={setBalance} className="rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white">Save Connect</button></div>
             <div className="mt-3 flex flex-wrap gap-2"><input value={validDays} onChange={e => setValidDays(e.target.value)} type="number" min="1" placeholder="Validity days" className="w-32 rounded-lg border px-3 py-2 text-xs"/><button onClick={inject} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-bold text-white">Add Package / Connects</button><button onClick={() => { setHistoryTab("userSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">User Seen</button><button onClick={() => { setHistoryTab("othersSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Others Seen</button><button onClick={() => { setHistoryTab("totalSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Total Seen</button></div>
           </div>}
