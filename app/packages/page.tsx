@@ -50,20 +50,36 @@ export default function Packages() {
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "User not found");
       setUser(j.data);
-      const activeId = j.data?.activePackage?.packageId ? String(j.data.activePackage.packageId) : "";
+      const activePackage = j.data?.activePackage || null;
+      const activeId = activePackage?.packageId ? String(activePackage.packageId) : "";
       const active = rows.find((row) => String(row._id) === activeId);
+
       if (active) {
         setP(active);
-        // The admin is editing the next assignment here, so show the package's
-        // configured validity by default while the account card always shows
-        // the real active-package expiry below.
-        setValidDays(String(active.validDays || 30));
-        setConnects(String(active.maxProfileView || active.total_connects || ""));
+        setValidDays(String(active.validDays || daysUntil(activePackage?.validTill) || 30));
+        setConnects(String(active.maxProfileView || active.total_connects || activePackage?.creditsRemaining || ""));
+      } else if (activePackage?.name) {
+        // Keep the user's active package visible even when its package
+        // definition was removed/changed in Package Configuration.
+        setP({
+          ...blank,
+          _id: activePackage.packageId || undefined,
+          name: activePackage.name,
+          packageType: activePackage.type === "Both" ? "Both" : "You",
+          total_connects: Number(activePackage.creditsRemaining || 0),
+          maxProfileView: Number(activePackage.creditsRemaining || 0),
+          validDays: daysUntil(activePackage.validTill) || 30,
+        });
+        setValidDays(String(daysUntil(activePackage.validTill) || 30));
+        setConnects(String(activePackage.creditsRemaining || ""));
       } else {
         setP(blank);
-        setValidDays(String(daysUntil(j.data?.activePackage?.validTill) || 30));
+        setValidDays("30");
         setConnects("");
       }
+
+      // Current Connect always means the actual wallet balance; selecting a
+      // package fills the separate "Connects to add" field automatically.
       setTargetConnects(String(j.data?.connectsBalance ?? 0));
       await loadHistory(j.data?._id);
     } catch (e: any) { setUser(null); setMessage(e.message || "User not found"); }
@@ -173,8 +189,9 @@ export default function Packages() {
               if (x) {
                 setP(x);
                 const packageCredits = Number(x.maxProfileView || x.total_connects || 0);
+                // Selecting a package immediately fills its connect quantity
+                // and validity; the wallet balance itself is not overwritten.
                 setConnects(String(packageCredits));
-                setTargetConnects(String(user?.connectsBalance ?? 0));
                 setValidDays(String(x.validDays || 30));
               } else {
                 setP(blank);
