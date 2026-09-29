@@ -115,20 +115,6 @@ export default function DashboardPage() {
             </div>
         </div>
 
-        <div className="px-1">
-            <button
-                onClick={() => router.push('/packages')}
-                className="w-full rounded-sm border border-emerald-200 bg-white p-4 text-left shadow-md hover:border-emerald-400 hover:bg-emerald-50 transition"
-            >
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-lg font-bold text-black">Package Manager</p>
-                        <p className="mt-1 text-xs text-slate-500">Packages, connects, manual activation and refunds</p>
-                    </div>
-                    <span className="rounded bg-emerald-600 px-4 py-2 text-xs font-bold text-white">Open</span>
-                </div>
-            </button>
-        </div>
         </>
     );
 }
