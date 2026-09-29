@@ -155,7 +155,19 @@ export default function Packages() {
     if (!Number.isFinite(target) || target < 0) { setMessage("Enter a valid target connect balance."); return; }
     const reason = window.prompt("Adjustment reason", "Verified closed phone number / manual connect correction");
     if (!reason?.trim()) return;
-    const r = await fetch(API + "/api/packages/set-connect-balance", { method: "POST", headers, body: JSON.stringify({ userId: user._id, targetConnects: target, reason }) });
+    const r = await fetch(API + "/api/packages/set-connect-balance", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        userId: user._id,
+        targetConnects: target,
+        reason,
+        packageId: p._id || undefined,
+        packageType: p.packageType,
+        packageName: p.name,
+        validDays: Number(validDays || p.validDays || 30),
+      })
+    });
     const j = await r.json();
     setMessage(j.success ? `Connect balance updated to ${target}.` : j.message || "Balance update failed");
     if (j.success) { setUser(j.data); setTargetConnects(String(j.data.connectsBalance || 0)); await loadHistory(user._id); }
