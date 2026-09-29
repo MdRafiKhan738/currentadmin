@@ -52,7 +52,6 @@ export default function Packages() {
       }
       setTargetConnects(String(j.data?.connectsBalance ?? ""));
       await loadHistory(j.data?._id);
-      await loadHistory(j.data?._id);
     } catch (e: any) { setUser(null); setMessage(e.message || "User not found"); }
     finally { setSearching(false); }
   }
