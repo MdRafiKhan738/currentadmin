@@ -25,10 +25,21 @@ export default function Packages() {
   const [historyTab, setHistoryTab] = useState<"userSeen" | "othersSeen" | "totalSeen">("userSeen");
   const [historyOpen, setHistoryOpen] = useState(false), [historyDate, setHistoryDate] = useState(""), [historySearch, setHistorySearch] = useState("");
   const [message, setMessage] = useState("");
+  const [packagesLoaded, setPackagesLoaded] = useState(false);
   const token = Cookies.get("adminToken") || "";
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
 
-  async function load() { setLoading(true); try { const r = await fetch(API + "/api/packages/admin", { headers }); const j = await r.json(); setRows(j.data || []); } finally { setLoading(false); } }
+  async function load() {
+    setLoading(true);
+    try {
+      const r = await fetch(API + "/api/packages/admin", { headers, cache: "no-store" });
+      const j = await r.json();
+      setRows(j.data || []);
+      setPackagesLoaded(true);
+    } finally {
+      setLoading(false);
+    }
+  }
   useEffect(() => { load(); }, []);
 
   async function searchUser(value = mobile) {
@@ -43,7 +54,10 @@ export default function Packages() {
       const active = rows.find((row) => String(row._id) === activeId);
       if (active) {
         setP(active);
-        setValidDays(String(active.validDays || daysUntil(j.data?.activePackage?.validTill) || 30));
+        // The admin is editing the next assignment here, so show the package's
+        // configured validity by default while the account card always shows
+        // the real active-package expiry below.
+        setValidDays(String(active.validDays || 30));
         setConnects(String(active.maxProfileView || active.total_connects || ""));
       } else {
         setP(blank);
@@ -59,6 +73,7 @@ export default function Packages() {
   useEffect(() => {
     const value = mobile.trim();
     if (!value) { setUser(null); return; }
+    if (!packagesLoaded) return;
     const timer = setTimeout(() => searchUser(value), 400);
     return () => clearTimeout(timer);
   }, [mobile]);
@@ -127,7 +142,9 @@ export default function Packages() {
               const x = rows.find(r => r._id === e.target.value);
               if (x) {
                 setP(x);
-                setConnects(String(x.maxProfileView || x.total_connects || ""));
+                const packageCredits = Number(x.maxProfileView || x.total_connects || 0);
+                setConnects(String(packageCredits));
+                setTargetConnects(String(packageCredits));
                 setValidDays(String(x.validDays || 30));
               } else {
                 setP(blank);
@@ -138,7 +155,14 @@ export default function Packages() {
             <label className="block"><span className="mb-1 block text-[11px] font-semibold text-slate-500">Current Connect</span><input type="number" min="0" value={targetConnects} onChange={e => setTargetConnects(e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-bold outline-none focus:border-emerald-500" /></label>
           </div>
 
-          {user && <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4"><div className="grid gap-3 md:grid-cols-4"><div><span className="text-[10px] font-semibold uppercase text-slate-400">Name</span><p className="text-sm font-bold">{user.name || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Number</span><p className="text-sm font-bold">{user.mobile || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Active package</span><p className="text-sm font-bold">{user.activePackage?.name || "No package"}{user.activePackage?.type ? <span className="ml-1 text-[10px] font-semibold text-emerald-600">({user.activePackage.type})</span> : null}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Valid to</span><p className="text-sm font-bold">{formatDate(user.activePackage?.validTill || user.validityDate)}</p></div></div>
+          {user && <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+            <div className="mb-3 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-[11px]">
+              <span className="font-semibold text-slate-500">Selected package:</span>{" "}
+              <span className="font-bold text-slate-900">{p.name || "None"}</span>
+              {p.packageType ? <span className="ml-2 font-bold text-emerald-700">({p.packageType})</span> : null}
+              {p._id ? <span className="ml-2 text-slate-400">• {p.maxProfileView || p.total_connects || 0} connects • {p.validDays || 30} days</span> : null}
+            </div>
+            <div className="grid gap-3 md:grid-cols-4"><div><span className="text-[10px] font-semibold uppercase text-slate-400">Name</span><p className="text-sm font-bold">{user.name || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Number</span><p className="text-sm font-bold">{user.mobile || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Active package</span><p className="text-sm font-bold">{user.activePackage?.name || "No package"}{user.activePackage?.type ? <span className="ml-1 text-[10px] font-semibold text-emerald-600">({user.activePackage.type})</span> : null}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Valid to</span><p className="text-sm font-bold">{formatDate(user.activePackage?.validTill || user.validityDate)}</p></div></div>
             <div className="mt-4 grid gap-3 lg:grid-cols-[160px_1fr_170px_150px]"><input value={connects} onChange={e => setConnects(e.target.value)} type="number" min="1" placeholder="Connects to add" className="rounded-lg border px-3 py-2.5 text-sm"/><input value={note} onChange={e => setNote(e.target.value)} placeholder="Package / adjustment note" className="rounded-lg border px-3 py-2.5 text-sm"/><input value={targetConnects} onChange={e => setTargetConnects(e.target.value)} type="number" min="0" placeholder="Set current connect" className="rounded-lg border px-3 py-2.5 text-sm"/><button onClick={setBalance} className="rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white">Save Connect</button></div>
             <div className="mt-3 flex flex-wrap gap-2"><input value={validDays} onChange={e => setValidDays(e.target.value)} type="number" min="1" placeholder="Validity days" className="w-32 rounded-lg border px-3 py-2 text-xs"/><button onClick={inject} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-bold text-white">Add Package / Connects</button><button onClick={() => { setHistoryTab("userSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">User Seen</button><button onClick={() => { setHistoryTab("othersSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Others Seen</button><button onClick={() => { setHistoryTab("totalSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Total Seen</button></div>
           </div>}
