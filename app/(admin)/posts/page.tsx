@@ -417,6 +417,32 @@ const fetchAds = async (filters: any = {}) => {
     }
 };
 
+    // Live admin post moderation feed. Status changes made by any admin
+    // instance are pushed from the backend and reflected without manual refresh.
+    useEffect(() => {
+        const socketUrl = API_BASE_URL.replace(/\/api\/?$/, '');
+        const realtimeSocket = io(socketUrl, {
+            transports: ['websocket', 'polling'],
+        });
+
+        const handleAdChanged = () => {
+            fetchAds(searchKeys);
+        };
+
+        realtimeSocket.on('ad status changed', handleAdChanged);
+        realtimeSocket.on('ad created', handleAdChanged);
+        realtimeSocket.on('ad updated', handleAdChanged);
+        realtimeSocket.on('ad deleted', handleAdChanged);
+
+        return () => {
+            realtimeSocket.off('ad status changed', handleAdChanged);
+            realtimeSocket.off('ad created', handleAdChanged);
+            realtimeSocket.off('ad updated', handleAdChanged);
+            realtimeSocket.off('ad deleted', handleAdChanged);
+            realtimeSocket.disconnect();
+        };
+    }, [searchKeys]);
+
     // Search & Tab Filter
     useEffect(() => {
         let filtered = ads;
