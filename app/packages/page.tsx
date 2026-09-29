@@ -64,7 +64,7 @@ export default function Packages() {
         setValidDays(String(daysUntil(j.data?.activePackage?.validTill) || 30));
         setConnects("");
       }
-      setTargetConnects(String(j.data?.connectsBalance ?? ""));
+      setTargetConnects(String(j.data?.connectsBalance ?? 0));
       await loadHistory(j.data?._id);
     } catch (e: any) { setUser(null); setMessage(e.message || "User not found"); }
     finally { setSearching(false); }
@@ -100,7 +100,37 @@ export default function Packages() {
     if (!Number.isFinite(amount) || amount <= 0) { setMessage("Enter a positive connect amount."); return; }
     const r = await fetch(API + "/api/packages/manual-inject", { method: "POST", headers, body: JSON.stringify({ userId: user._id, connects: amount, validDays: Number(validDays || 30), packageId: p._id || undefined, packageType: p.packageType, packageName: p.name, note: note || "Manual package assignment" }) });
     const j = await r.json(); setMessage(j.success ? "Package / connects added successfully." : j.message || "Assignment failed");
-    if (j.success) { setUser(j.data); setConnects(""); setNote(""); await loadHistory(user._id); }
+    if (j.success) {
+      setUser(j.data);
+      setConnects("");
+      setTargetConnects(String(j.data?.connectsBalance ?? 0));
+      setNote("");
+      setValidDays(String(daysUntil(j.data?.activePackage?.validTill) || validDays || 30));
+      await loadHistory(user._id);
+    }
+  }
+
+  async function updateValidity() {
+    if (!user?.activePackage?.name) {
+      setMessage("Select a user with an active package first.");
+      return;
+    }
+    const days = Number(validDays);
+    if (!Number.isFinite(days) || days <= 0) {
+      setMessage("Enter a valid number of validity days.");
+      return;
+    }
+    const r = await fetch(API + "/api/packages/manual-update-validity", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ userId: user._id, validDays: days })
+    });
+    const j = await r.json();
+    setMessage(j.success ? "Active package validity updated." : j.message || "Validity update failed");
+    if (j.success) {
+      setUser(j.data);
+      setValidDays(String(daysUntil(j.data?.activePackage?.validTill) || days));
+    }
   }
 
   async function setBalance() {
@@ -144,7 +174,7 @@ export default function Packages() {
                 setP(x);
                 const packageCredits = Number(x.maxProfileView || x.total_connects || 0);
                 setConnects(String(packageCredits));
-                setTargetConnects(String(packageCredits));
+                setTargetConnects(String(user?.connectsBalance ?? 0));
                 setValidDays(String(x.validDays || 30));
               } else {
                 setP(blank);
@@ -160,11 +190,12 @@ export default function Packages() {
               <span className="font-semibold text-slate-500">Selected package:</span>{" "}
               <span className="font-bold text-slate-900">{p.name || "None"}</span>
               {p.packageType ? <span className="ml-2 font-bold text-emerald-700">({p.packageType})</span> : null}
-              {p._id ? <span className="ml-2 text-slate-400">• {p.maxProfileView || p.total_connects || 0} connects • {p.validDays || 30} days</span> : null}
+              {p._id ? <span className="ml-2 text-slate-400">• {Number(p.maxProfileView || p.total_connects || 0).toLocaleString()} connects • {p.validDays || 30} days</span> : null}
+              {p._id && p.checkedFeatures?.length ? <span className="ml-2 text-slate-500">• {p.checkedFeatures.slice(0, 2).join(" • ")}</span> : null}
             </div>
-            <div className="grid gap-3 md:grid-cols-4"><div><span className="text-[10px] font-semibold uppercase text-slate-400">Name</span><p className="text-sm font-bold">{user.name || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Number</span><p className="text-sm font-bold">{user.mobile || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Active package</span><p className="text-sm font-bold">{user.activePackage?.name || "No package"}{user.activePackage?.type ? <span className="ml-1 text-[10px] font-semibold text-emerald-600">({user.activePackage.type})</span> : null}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Valid to</span><p className="text-sm font-bold">{formatDate(user.activePackage?.validTill || user.validityDate)}</p></div></div>
+            <div className="grid gap-3 md:grid-cols-4"><div><span className="text-[10px] font-semibold uppercase text-slate-400">Name</span><p className="text-sm font-bold">{user.name || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Number</span><p className="text-sm font-bold">{user.mobile || "—"}</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Active package</span><p className="text-sm font-bold">{user.activePackage?.name || "No package"}{user.activePackage?.type ? <span className="ml-1 text-[10px] font-semibold text-emerald-600">({user.activePackage.type})</span> : null}</p><p className="mt-0.5 text-[10px] text-slate-500">{Number(user.activePackage?.creditsRemaining ?? 0).toLocaleString()} package credits remaining</p></div><div><span className="text-[10px] font-semibold uppercase text-slate-400">Valid to</span><p className="text-sm font-bold">{formatDate(user.activePackage?.validTill || user.validityDate)}</p><p className="mt-0.5 text-[10px] text-slate-500">{daysUntil(user.activePackage?.validTill || user.validityDate)} days remaining</p></div></div>
             <div className="mt-4 grid gap-3 lg:grid-cols-[160px_1fr_170px_150px]"><input value={connects} onChange={e => setConnects(e.target.value)} type="number" min="1" placeholder="Connects to add" className="rounded-lg border px-3 py-2.5 text-sm"/><input value={note} onChange={e => setNote(e.target.value)} placeholder="Package / adjustment note" className="rounded-lg border px-3 py-2.5 text-sm"/><input value={targetConnects} onChange={e => setTargetConnects(e.target.value)} type="number" min="0" placeholder="Set current connect" className="rounded-lg border px-3 py-2.5 text-sm"/><button onClick={setBalance} className="rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white">Save Connect</button></div>
-            <div className="mt-3 flex flex-wrap gap-2"><input value={validDays} onChange={e => setValidDays(e.target.value)} type="number" min="1" placeholder="Validity days" className="w-32 rounded-lg border px-3 py-2 text-xs"/><button onClick={inject} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-bold text-white">Add Package / Connects</button><button onClick={() => { setHistoryTab("userSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">User Seen</button><button onClick={() => { setHistoryTab("othersSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Others Seen</button><button onClick={() => { setHistoryTab("totalSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Total Seen</button></div>
+            <div className="mt-3 flex flex-wrap gap-2"><input value={validDays} onChange={e => setValidDays(e.target.value)} type="number" min="1" placeholder="Validity days" className="w-32 rounded-lg border px-3 py-2 text-xs"/><button onClick={updateValidity} className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">Update Valid To</button><button onClick={inject} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-bold text-white">Add Package / Connects</button><button onClick={() => { setHistoryTab("userSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">User Seen</button><button onClick={() => { setHistoryTab("othersSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Others Seen</button><button onClick={() => { setHistoryTab("totalSeen"); setHistoryOpen(true); }} className="rounded-lg border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-700">Total Seen</button></div>
           </div>}
           {!user && !searching && <div className="mt-4 rounded-lg bg-slate-50 px-4 py-3 text-xs text-slate-500">Enter a phone number to load the account automatically.</div>}
           {message && <div className="mt-3 rounded-lg bg-slate-900 px-4 py-3 text-xs font-semibold text-white">{message}</div>}
