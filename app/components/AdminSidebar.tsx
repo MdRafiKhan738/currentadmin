@@ -20,7 +20,7 @@ export default function AdminSidebar({ isCollapsed }: AdminSidebarProps) {
         { href: '/admin-create', label: 'Admin Create', icon: UserPlus }, { href: '/notifications', label: 'Notification & Messaging', icon: Bell },
         { href: '/ad-position', label: 'AD Position (W/A/Q)', icon: LayoutGrid }, { href: '/categories', label: 'Categorie Manager', icon: Layers },
 { href: '/locations', label: 'Location Manager', icon: MapPin },
-        { href: '/packages', label: 'Package Manager', icon: Package }, { href: '/all-settings', label: 'Settings & Others', icon: Settings }
+        { href: '/packages', label: 'Package Manager', icon: Package, permission: 'Settings & Others' }, { href: '/all-settings', label: 'Settings & Others', icon: Settings }
     ];
     const filteredMenuItems = menuItems.filter(item => { if (!user) return false; if (item.label === 'Dashboard') return true; return user.permissions?.[item.permission || item.label] === true; });
     return <aside className={cn('fixed left-0 top-10 h-[calc(100vh-2.5rem)] bg-white border-r border-slate-200 flex flex-col transition-all duration-300 z-50 overflow-hidden', isCollapsed ? 'w-16' : 'w-56')}>
