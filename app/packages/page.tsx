@@ -76,7 +76,7 @@ export default function Packages() {
     if (!packagesLoaded) return;
     const timer = setTimeout(() => searchUser(value), 400);
     return () => clearTimeout(timer);
-  }, [mobile]);
+  }, [mobile, packagesLoaded]);
 
   async function loadHistory(userId: string) {
     if (!userId) return;
